@@ -2,10 +2,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -34,6 +38,46 @@ class ScrollView{
 
 class Scanning extends Thread{
 
+    /**
+     * IP响应延迟时间
+     */
+    static int Time = 5;
+
+    /**
+     * 
+     * @param Host
+     * @return
+     */
+    public String isHostReachable(String Host){
+        BufferedReader read = null;
+        try{
+            Runtime runtime = Runtime.getRuntime();
+            Process process = runtime.exec("ping www.baidu.com");
+            InputStreamReader reader = new InputStreamReader(process.getInputStream(),"GB2312");
+            read = new BufferedReader(reader);
+            
+            StringBuffer sb = new StringBuffer();
+            String line = null;
+            while((line  = read.readLine()) != null){
+                //Program.Output.jt.append("1\n");
+                sb.append(line);
+            }
+            if(!sb.toString().contains("平均")){
+                return "-1";
+            }
+            else{
+                return sb.toString().substring(sb.toString().lastIndexOf("平均")+5, sb.length());
+            }
+        }
+        catch(UnknownHostException e1){
+            e1.printStackTrace();
+        }
+        catch(IOException e2){
+            e2.printStackTrace();
+        }
+        return "-1";
+    }
+
     public void run(){
         Program.Breaksign = 0;
         Program.Output.jt.setText("");
@@ -53,7 +97,7 @@ class Scanning extends Thread{
         Text.setSize(300,70);
 
         //判断端口输入是否正确
-        if(L > R || L < 0 || L > 65535 || R < 0 || R > 65535){
+        if(L > R || L <= 0 || L > 65535 || R <= 0 || R > 65535){
             Tip.setVisible(true);
             Text.setText("<html><body><p align=\"left\">区间不存在，请重新设置端口区间!<br>端口范围为:0-65535</p></body></html>");
             Program.LPortInput.setText("");
@@ -64,36 +108,51 @@ class Scanning extends Thread{
 
         Program.ScanningIP = Program.IP4Input.getText();
 
-        //存放开放端口数组
-        ArrayList<Integer>List = new ArrayList<>();
+        Program.Output.jt.append("正在检测是否连通IP地址...\n");
+        /**
+         * 判断该IP是否可连通
+         */
+        String DTime = isHostReachable(Program.ScanningIP);
+        Scanner scan = new Scanner(DTime).useDelimiter("[^0-9]");
+        Time = scan.nextInt();
+        scan.close();
 
-        //开始扫描端口
-        for(int i = L;i <= R;i++){
-            //被用户停止判断
-            if(Program.Breaksign == 1){
-                Tip.setVisible(true);
-                Text.setText("<html><body><p align=\"left\">端口扫描已被用户终止！</p></body></html>");
-                Program.LPortInput.setText("");
-                Program.RPortInput.setText("");
-                Tip.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                break;
-            }
-            if(Program.check(Program.ScanningIP,i)){
-                Program.Output.jt.append(Program.ScanningIP + ":" + i + "(Open)\n");
-                Program.Output.jt.setCaretPosition(Program.Output.jt.getText().length());
-                List.add(i);
-            }
-            else {
-                Program.Output.jt.append(Program.ScanningIP + ":" + i + "(Close)\n");
-                Program.Output.jt.setCaretPosition(Program.Output.jt.getText().length());
-            }
+        if(DTime == "-1"){
+            Program.Output.jt.append("连接超时，请填入正确的IP地址或稍后再试！\n");
         }
+        else{
+            Program.Output.jt.append("连接成功，正在检测端口状态！"+"\n");
+            //存放开放端口数组
+            ArrayList<Integer>List = new ArrayList<>();
 
-        //扫描结束总结
-        Program.Output.jt.append("_________________________________\n"+Program.ScanningIP+"下开放的端口有:\n");
-        Program.Output.jt.setCaretPosition(Program.Output.jt.getText().length());
-        for(int i = 0;i <= List.size();i++){
-            Program.Output.jt.append(List.get(i)+" ");
+            //开始扫描端口
+            for(int i = L;i <= R;i++){
+                //被用户停止线程
+                if(Program.Breaksign == 1){
+                    Tip.setVisible(true);
+                    Text.setText("<html><body><p align=\"left\">端口扫描已被用户终止！</p></body></html>");
+                    Program.LPortInput.setText("");
+                    Program.RPortInput.setText("");
+                    Tip.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    break;
+                }
+                if(Program.check(Program.ScanningIP,i)){
+                    Program.Output.jt.append(Program.ScanningIP + ":" + i + "(Open)\n");
+                    Program.Output.jt.setCaretPosition(Program.Output.jt.getText().length());
+                    List.add(i);
+                }
+                else {
+                    Program.Output.jt.append(Program.ScanningIP + ":" + i + "(Close)\n");
+                    Program.Output.jt.setCaretPosition(Program.Output.jt.getText().length());
+                }
+            }
+
+            //扫描结束总结
+            Program.Output.jt.append("_________________________________\n"+Program.ScanningIP+"下开放的端口有:\n");
+            Program.Output.jt.setCaretPosition(Program.Output.jt.getText().length());
+            for(int i = 0;i <= List.size();i++){
+                Program.Output.jt.append(List.get(i)+" ");
+            }
         }
     }
 }
@@ -103,13 +162,31 @@ class Scanning extends Thread{
  */
 public class Program {
 
-    static JFrame MainFrame;        //主面板JFrame
-    static JTextField LPortInput;   //左端口输入框
+    /**
+     * 主面板JFrame
+     */
+    static JFrame MainFrame;
+    /**
+     * 左端口输入框
+     */
+    static JTextField LPortInput;
     static JTextField RPortInput;   //右端口输入框
-    static ScrollView Output;       //带滚动条的JTextArea
-    static JTextField IP4Input;     //地址输入框
-    static String ScanningIP;       //地址字符串
-    static int Breaksign = 0;       //扫描终止标志
+    /**
+     * 带滚动条的JTextArea
+     */
+    static ScrollView Output;
+    /**
+     * 地址输入框
+     */
+    static JTextField IP4Input;
+    /**
+     * 地址字符串
+     */
+    static String ScanningIP;
+    /**
+     * 扫描终止标志
+     */
+    static int Breaksign = 0;
     
     /**
      * 检查端口开放状态
@@ -120,7 +197,7 @@ public class Program {
     public static boolean check(String now,int Port){
         Socket socket = new Socket();
         try{
-            socket.connect(new InetSocketAddress(now,Port),5);
+            socket.connect(new InetSocketAddress(now,Port),Scanning.Time);
         }
         catch(IOException e){
             e.printStackTrace();
@@ -155,7 +232,7 @@ public class Program {
         AFrame.add(Text);//将Text添加至AFrame图层
         Text.setSize(300,70);
         // Text.setLocation(100,100);
-        Text.setText("<html><body><p align=\"left\">使用方法：输入IP地址与端口范围即可检测端口状态</p></body></html>");
+        Text.setText("<html><body><p align=\"left\">使用方法：输入IP地址与端口范围即可检测端口状态<br>若在使用过程中发现BUG可反馈至:1139128923@qq.com</p></body></html>");
 
         AFrame.addWindowListener(new WindowAdapter(){
             @Override
