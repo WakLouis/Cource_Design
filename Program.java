@@ -2,12 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.awt.event.ActionEvent;
@@ -41,42 +35,7 @@ class Scanning extends Thread{
     /**
      * IP响应延迟时间
      */
-    static int Time = 5;
-
-    /**
-     * 
-     * @param Host
-     * @return
-     */
-    public String isHostReachable(String Host){
-        BufferedReader read = null;
-        try{
-            Runtime runtime = Runtime.getRuntime();
-            Process process = runtime.exec("ping www.baidu.com");
-            InputStreamReader reader = new InputStreamReader(process.getInputStream(),"GB2312");
-            read = new BufferedReader(reader);
-            
-            StringBuffer sb = new StringBuffer();
-            String line = null;
-            while((line  = read.readLine()) != null){
-                //Program.Output.jt.append("1\n");
-                sb.append(line);
-            }
-            if(!sb.toString().contains("平均")){
-                return "-1";
-            }
-            else{
-                return sb.toString().substring(sb.toString().lastIndexOf("平均")+5, sb.length());
-            }
-        }
-        catch(UnknownHostException e1){
-            e1.printStackTrace();
-        }
-        catch(IOException e2){
-            e2.printStackTrace();
-        }
-        return "-1";
-    }
+    static int Time = -1;
 
     public void run(){
         Program.Breaksign = 0;
@@ -112,12 +71,12 @@ class Scanning extends Thread{
         /**
          * 判断该IP是否可连通
          */
-        String DTime = isHostReachable(Program.ScanningIP);
-        Scanner scan = new Scanner(DTime).useDelimiter("[^0-9]");
+        String DTime = Reachable.isHostReachable(Program.ScanningIP);
+        Scanner scan = new Scanner(DTime).useDelimiter("[^0-9-]");
         Time = scan.nextInt();
         scan.close();
-
-        if(DTime == "-1"){
+        //Program.Output.jt.append(Time + "\n");
+        if(Time == -1){
             Program.Output.jt.append("连接超时，请填入正确的IP地址或稍后再试！\n");
         }
         else{
@@ -136,7 +95,7 @@ class Scanning extends Thread{
                     Tip.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     break;
                 }
-                if(Program.check(Program.ScanningIP,i)){
+                if(check.Check(Program.ScanningIP,i)){
                     Program.Output.jt.append(Program.ScanningIP + ":" + i + "(Open)\n");
                     Program.Output.jt.setCaretPosition(Program.Output.jt.getText().length());
                     List.add(i);
@@ -161,6 +120,7 @@ class Scanning extends Thread{
  * 程序入口
  */
 public class Program {
+
 
     /**
      * 主面板JFrame
@@ -187,32 +147,6 @@ public class Program {
      * 扫描终止标志
      */
     static int Breaksign = 0;
-    
-    /**
-     * 检查端口开放状态
-     * @param now 当前需检测IP地址
-     * @param Port 端口号
-     * @return 返回是否开放状态，1：开放 0：关闭
-     */
-    public static boolean check(String now,int Port){
-        Socket socket = new Socket();
-        try{
-            socket.connect(new InetSocketAddress(now,Port),Scanning.Time);
-        }
-        catch(IOException e){
-            e.printStackTrace();
-            return false;
-        }
-        finally{
-            try{
-                socket.close();
-            }
-            catch(IOException e){
-                e.printStackTrace();
-            }
-        }
-        return true;
-    }
 
     /**
      * 创建Annotation说明按钮打开的界面
@@ -348,7 +282,6 @@ public class Program {
         SButton.setLocation(6,52);
 
         ImageIcon icon = new ImageIcon("Start.png");
-        icon.getImage();
         Image img = icon.getImage().getScaledInstance(75, 75,Image.SCALE_DEFAULT);
         icon = new ImageIcon(img);
         SButton.setIcon(icon);
@@ -369,7 +302,6 @@ public class Program {
         EButton.setLocation(56,52);
         
         ImageIcon icon1 = new ImageIcon("Stop.png");
-        icon1.getImage();
         Image img1 = icon1.getImage().getScaledInstance(80, 80,Image.SCALE_DEFAULT);
         icon1 = new ImageIcon(img1);
         EButton.setIcon(icon1);
