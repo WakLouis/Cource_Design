@@ -1,7 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.awt.event.ActionEvent;
@@ -77,10 +75,10 @@ class Scanning extends Thread{
         scan.close();
         //Program.Output.jt.append(Time + "\n");
         if(Time == -1){
-            Program.Output.jt.append("连接超时，请填入正确的IP地址或稍后再试！\n");
+            Program.Output.jt.append("连接超时，请填入正确的IP地址或稍后再试!\n");
         }
         else{
-            Program.Output.jt.append("连接成功，正在检测端口状态！"+"\n");
+            Program.Output.jt.append("连接成功，正在检测端口状态!"+"\n");
             //存放开放端口数组
             ArrayList<Integer>List = new ArrayList<>();
 
@@ -89,7 +87,7 @@ class Scanning extends Thread{
                 //被用户停止线程
                 if(Program.Breaksign == 1){
                     Tip.setVisible(true);
-                    Text.setText("<html><body><p align=\"left\">端口扫描已被用户终止！</p></body></html>");
+                    Text.setText("<html><body><p align=\"left\">端口扫描已被用户终止!</p></body></html>");
                     Program.LPortInput.setText("");
                     Program.RPortInput.setText("");
                     Tip.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -149,36 +147,6 @@ public class Program {
     static int Breaksign = 0;
 
     /**
-     * 创建Annotation说明按钮打开的界面
-     */
-    public static void Annotation(){
-        //创建AFrame图形界面
-        JFrame AFrame = new JFrame("说明");
-        AFrame.setLayout(new FlowLayout());
-        AFrame.setVisible(true);
-        AFrame.setSize(350,100);
-        AFrame.setLocation(550,300);
-        AFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        MainFrame.setEnabled(false);
-
-        //创建文本Text
-        JLabel Text = new JLabel("",JLabel.CENTER);
-        AFrame.add(Text);//将Text添加至AFrame图层
-        Text.setSize(300,70);
-        // Text.setLocation(100,100);
-        Text.setText("<html><body><p align=\"left\">使用方法：输入IP地址与端口范围即可检测端口状态<br>若在使用过程中发现BUG可反馈至:1139128923@qq.com</p></body></html>");
-
-        AFrame.addWindowListener(new WindowAdapter(){
-            @Override
-            public void windowClosing(WindowEvent e){
-                MainFrame.setEnabled(true);
-            }
-        });
-
-        return;
-    }
-
-    /**
      * 主面板初始化
      */
     public static void MainFrameInit(){
@@ -215,7 +183,7 @@ public class Program {
         AnnoButton.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
-                Annotation();
+                annotation.Annotation();
             }
         });
         
