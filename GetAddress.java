@@ -11,12 +11,12 @@ interface GetAddress{
 
 	public static String GetIP4Address(){
 		String ip = "0";
-	try {
-		InetAddress ip4 = Inet4Address.getLocalHost();
-		ip = (String)ip4.getHostAddress();
-	} catch (UnknownHostException e) {
-		ip = "Not Found IP Address!";
-	}	
+		try {
+			InetAddress ip4 = Inet4Address.getLocalHost();
+			ip = (String)ip4.getHostAddress();
+		} catch (UnknownHostException e) {
+			ip = "Not Found IP Address!";
+		}	
 	return ip;
 	}
 }

@@ -4,6 +4,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.*;
 
+/**
+ * 创建说明窗口
+ */
 public class annotation {
     public static void Annotation(){
         //创建AFrame图形界面
