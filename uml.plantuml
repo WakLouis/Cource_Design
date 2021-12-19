@@ -1,0 +1,75 @@
+@startuml UML
+
+class Program{
+    +MainFrame : JFrame
+    +LPortInput : JTextField
+    +RPortInput : JTextField
+    +Output : ScrollView 
+    +IP4Input : JTextField
+    +ScanningIP : String
+    +Breaksign : int
+
+    +MainFrameInit() : void
+    +main() : void
+}
+
+class Reachable{
+    +isHostReachable() : String
+}
+
+class annotation{
+    +Annotation() : void
+}
+
+class check{
+    +Check() : boolean
+}
+
+interface GetAddress{
+    +GetIP4Address() : String
+}
+
+class Scanning{
+    +Time : int
+    +run() : void
+}
+
+class ScrollView{
+    +jt : JtextArea
+    +js : JScrollPane
+}
+
+interface check{
+    +Check() : boolean
+}
+
+
+class SecureCheck{
+    +List : ArrayList
+    +run() : void
+}
+
+class Tip{
+    +Text : JLabel
+}
+
+Tip <|-- JFrame
+SecureCheck <|-- Thread
+Scanning <|-- Thread
+EFrame <|-- JFrame
+
+GetAddress <.. Scanning
+check <.. Scanning
+Reachable <.. Scanning
+Tip -> Scanning
+
+Tip -> SecureCheck
+check <.. SecureCheck
+
+ScrollView <-- Program
+EFrame <- Program
+annotation <..  Program
+Scanning <- Program
+SecureCheck <-- Program
+
+@enduml

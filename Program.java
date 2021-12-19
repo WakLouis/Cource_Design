@@ -111,8 +111,7 @@ class Scanning extends Thread{
  * 程序入口
  */
 public class Program {
-
-
+    
     /**
      * 主面板JFrame
      */
